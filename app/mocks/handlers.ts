@@ -25,8 +25,24 @@ const schema = buildSchema(`
     avatarUrl: String!
   }
 
+  input UserInput {
+    id: ID!
+    firstName: String!
+    avatarUrl: String!
+  }
+
+  input ReviewInput {
+    movieId: ID!
+    text: String!
+    rating: Int!
+  }
+
   type Query {
     reviews(movieId: ID!): [Review!]
+  }
+
+  type Mutation {
+    addReview(author: UserInput!, reviewInput: ReviewInput!): Review
   }
 `);
 
@@ -131,18 +147,7 @@ export const handlers = [
       avatarUrl: "https://avatars.dicebear.com/api/avataaars/johndoe.svg",
     });
   }),
-  // query ListReviews($movieId: ID!) {
-  //   reviews(movieId: $movieId) {
-  //     id
-  //     text
-  //     rating
-  //     author {
-  //       firstName
-  //       avatarUrl
-  //     }
-  //   }
-  // }
-  graphql.query("ListReviews", async ({ query, variables }) => {
+  graphql.operation(async ({ query, variables }) => {
     const { errors, data } = await executeGraphql({
       schema,
       source: query,
@@ -153,45 +158,28 @@ export const handlers = [
 
           return movie?.reviews ?? [];
         },
+        addReview(args) {
+          const { author, reviewInput } = args;
+          const { movieId, ...review } = reviewInput;
+          const movie = movies.find((m) => m.id === movieId);
+          const newReview = {
+            ...review,
+            id: Math.random().toString(36).slice(2),
+            author,
+          };
+          const prevReviews = movie?.reviews ?? [];
+
+          if (!movie) {
+            throw new Error(`Movie with ID "${movieId}" not found.`);
+          }
+
+          if (movie?.reviews) movie.reviews = prevReviews.concat(newReview);
+
+          return newReview;
+        },
       },
     });
 
     return HttpResponse.json({ errors, data });
-  }),
-  // mutation AddReview($author: UserInput!, $reviewInput: ReviewInput!) {
-  //   addReview(author: $author, reviewInput: $reviewInput) {
-  //     id
-  //     text
-  //     author {
-  //       id
-  //       firstName
-  //       avatarUrl
-  //     }
-  //   }
-  // }
-  graphql.mutation("AddReview", ({ variables }) => {
-    const { author, reviewInput } = variables;
-    const { movieId, ...review } = reviewInput;
-    const movie = movies.find((m) => m.id === movieId);
-    const newReview = {
-      ...review,
-      id: Math.random().toString(36).slice(2),
-      author,
-    };
-    const prevReviews = movie?.reviews ?? [];
-
-    if (!movie) {
-      return HttpResponse.json({
-        errors: [
-          {
-            message: `Movie with ID "${movieId}" not found.`,
-          },
-        ],
-      });
-    }
-
-    if (movie?.reviews) movie.reviews = prevReviews.concat(newReview);
-
-    return HttpResponse.json({ data: { addReview: newReview } });
   }),
 ];
