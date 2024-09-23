@@ -24,6 +24,9 @@ const movies = [
 ];
 
 export const handlers = [
+  http.post("http://localhost:3001/ping", () => {
+    return HttpResponse.text("pong");
+  }),
   http.get("https://api.example.com/movies/featured", () => {
     return HttpResponse.json(movies);
   }),
