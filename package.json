@@ -32,8 +32,6 @@
     "node": ">=18"
   },
   "msw": {
-    "workerDirectory": [
-      "public"
-    ]
+    "workerDirectory": "public"
   }
 }
