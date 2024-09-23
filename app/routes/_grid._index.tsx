@@ -1,20 +1,20 @@
-import { useLoaderData, useRouteError } from '@remix-run/react'
-import { ErrorBanner } from '~/components/errorBanner'
-import { MovieThumbnail } from '~/components/movieThumbnail'
-import type { FeaturedMovie } from '~/types'
+import { useLoaderData, useRouteError } from "@remix-run/react";
+import { ErrorBanner } from "~/components/errorBanner";
+import { MovieThumbnail } from "~/components/movieThumbnail";
+import type { FeaturedMovie } from "~/types";
 
 export async function loader() {
   const featuredMovies = await fetch(
-    'https://api.example.com/movies/featured',
-  ).then<Array<FeaturedMovie>>((response) => response.json())
+    "https://api.example.com/movies/featured"
+  ).then<Array<FeaturedMovie>>((response) => response.json());
 
   return {
     featuredMovies,
-  }
+  };
 }
 
 export default function Homepage() {
-  const { featuredMovies } = useLoaderData<typeof loader>()
+  const { featuredMovies } = useLoaderData<typeof loader>();
 
   return (
     <section>
@@ -37,11 +37,11 @@ export default function Homepage() {
         <p className="text-neutral-400">No featured movies yet.</p>
       )}
     </section>
-  )
+  );
 }
 
 export function ErrorBoundary() {
-  const error = useRouteError() as Error
+  const error = useRouteError() as Error;
 
-  return <ErrorBanner displayText="Failed to fetch" error={error} />
+  return <ErrorBanner displayText="Failed to fetch" error={error} />;
 }
