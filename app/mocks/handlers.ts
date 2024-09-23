@@ -1,4 +1,4 @@
-import { http, HttpResponse } from "msw";
+import { http, HttpResponse, delay } from "msw";
 
 const movies = [
   {
@@ -40,7 +40,8 @@ export const handlers = [
   http.post("http://localhost:3001/ping", () => {
     return HttpResponse.text("pong");
   }),
-  http.get("https://api.example.com/movies/featured", () => {
+  http.get("https://api.example.com/movies/featured", async () => {
+    await delay(1000);
     return HttpResponse.json(movies);
   }),
   http.get("https://api.example.com/movies/:slug", ({ params }) => {
@@ -50,10 +51,12 @@ export const handlers = [
 
     return new HttpResponse("Not found", { status: 404 });
   }),
-  http.get("api/recommendations", ({ request }) => {
+  http.get("api/recommendations", async ({ request }) => {
     const url = new URL(request.url);
     const movieId = url.searchParams.get("movieId");
     const recommendations = movies.filter((m) => m.id !== movieId);
+
+    await delay("real");
 
     // return HttpResponse.error(); // Failed or aborted
 
