@@ -1,6 +1,8 @@
 import { http, HttpResponse, delay, graphql } from "msw";
 import { graphql as executeGraphql, buildSchema } from "graphql";
 
+const customerService = graphql.link("https://api.example.com/review-service");
+
 const schema = buildSchema(`
   type Movie {
     id: ID!
@@ -145,6 +147,18 @@ export const handlers = [
       firstName: "John",
       lastName: "Doe",
       avatarUrl: "https://avatars.dicebear.com/api/avataaars/johndoe.svg",
+    });
+  }),
+  customerService.query("ListReviews", async () => {
+    return HttpResponse.json({
+      data: {
+        serviceReviews: [
+          {
+            id: "04be0fb5-19f6-411c-9257-bcef6cd203c2",
+            message: "One of my favorite films of all time.",
+          },
+        ],
+      },
     });
   }),
   graphql.operation(async ({ query, variables }) => {
