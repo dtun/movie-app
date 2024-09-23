@@ -102,6 +102,24 @@ export const handlers = [
   http.post("http://localhost:3001/ping", () => {
     return HttpResponse.text("pong");
   }),
+  http.get("https://api.example.com/movies/:slug/stream", async () => {
+    const videoResponse = await fetch(
+      "https://cdn.example.com/videos/movie.mp4"
+    );
+    const videoStream = videoResponse.body;
+    const latencyStream = new TransformStream({
+      start() {},
+      async transform(chunk, controller) {
+        await delay(1000);
+        controller.enqueue(chunk);
+      },
+    });
+
+    return new HttpResponse(
+      videoStream?.pipeThrough(latencyStream),
+      videoResponse
+    );
+  }),
   http.get("http://localhost:3001/api/featured", async ({ request }) => {
     const response = await fetch(bypass(request));
     const movies = await response.json();
