@@ -55,6 +55,8 @@ export const handlers = [
     const movieId = url.searchParams.get("movieId");
     const recommendations = movies.filter((m) => m.id !== movieId);
 
+    // return HttpResponse.error(); // Failed or aborted
+
     if (!movieId) {
       return new HttpResponse("Missing movieId", { status: 400 });
     }
