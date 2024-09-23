@@ -119,4 +119,30 @@ export const handlers = [
 
     return HttpResponse.json({ data: { reviews } });
   }),
+  // mutation AddReview($author: UserInput!, $reviewInput: ReviewInput!) {
+  //   addReview(author: $author, reviewInput: $reviewInput) {
+  //     id
+  //     text
+  //     author {
+  //       id
+  //       firstName
+  //       avatarUrl
+  //     }
+  //   }
+  // }
+  graphql.mutation("AddReview", ({ variables }) => {
+    const { author, reviewInput } = variables;
+    const { movieId, ...review } = reviewInput;
+    const movie = movies.find((m) => m.id === movieId);
+    const newReview = {
+      ...review,
+      id: Math.random().toString(36).slice(2),
+      author,
+    };
+    const prevReviews = movie?.reviews ?? [];
+
+    if (movie?.reviews) movie.reviews = prevReviews.concat(newReview);
+
+    return HttpResponse.json({ data: { addReview: newReview } });
+  }),
 ];
