@@ -1,4 +1,4 @@
-import { http, HttpResponse, delay, graphql, passthrough } from "msw";
+import { http, HttpResponse, delay, graphql, passthrough, bypass } from "msw";
 import { graphql as executeGraphql, buildSchema } from "graphql";
 
 const customerService = graphql.link("https://api.example.com/review-service");
@@ -101,6 +101,12 @@ const movies = [
 export const handlers = [
   http.post("http://localhost:3001/ping", () => {
     return HttpResponse.text("pong");
+  }),
+  http.get("http://localhost:3001/api/featured", async ({ request }) => {
+    const response = await fetch(bypass(request));
+    const movies = await response.json();
+
+    return HttpResponse.json(movies.concat(movies));
   }),
   http.get("https://api.example.com/movies/featured", async () => {
     await delay(1000);
