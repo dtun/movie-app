@@ -1,4 +1,16 @@
-import { http, HttpResponse, delay } from "msw";
+import { http, HttpResponse, delay, graphql } from "msw";
+
+const reviews = [
+  {
+    id: "04be0fb5-19f6-411c-9257-bcef6cd203c2",
+    text: "One of my favorite films of all time.",
+    rating: 5,
+    author: {
+      firstName: "Kate",
+      avatarUrl: "https://i.pravatar.cc/100?img=1",
+    },
+  },
+];
 
 const movies = [
   {
@@ -11,6 +23,7 @@ const movies = [
       "Over the course of several years, two convicts form a friendship, seeking consolation and, eventually, redemption through basic compassion.",
     imageUrl:
       "https://m.media-amazon.com/images/M/MV5BNDE3ODcxYzMtY2YzZC00NmNlLWJiNDMtZDViZWM2MzIxZDYwXkEyXkFqcGdeQXVyNjAwNDUxODI@._V1_FMjpg_UX1200_.jpg",
+    reviews: [],
   },
   {
     id: "3342a4f2-144b-4cef-8041-676affedfbb8",
@@ -33,6 +46,7 @@ const movies = [
       "When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice.",
     imageUrl:
       "https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_FMjpg_UY2048_.jpg",
+    reviews,
   },
 ];
 
@@ -86,5 +100,23 @@ export const handlers = [
       lastName: "Doe",
       avatarUrl: "https://avatars.dicebear.com/api/avataaars/johndoe.svg",
     });
+  }),
+  // query ListReviews($movieId: ID!) {
+  //   reviews(movieId: $movieId) {
+  //     id
+  //     text
+  //     rating
+  //     author {
+  //       firstName
+  //       avatarUrl
+  //     }
+  //   }
+  // }
+  graphql.query("ListReviews", ({ variables }) => {
+    const { movieId } = variables;
+    const movie = movies.find((m) => m.id === movieId);
+    const reviews = movie?.reviews ?? [];
+
+    return HttpResponse.json({ data: { reviews } });
   }),
 ];
