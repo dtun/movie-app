@@ -55,6 +55,14 @@ export const handlers = [
     const movieId = url.searchParams.get("movieId");
     const recommendations = movies.filter((m) => m.id !== movieId);
 
+    if (!movieId) {
+      return new HttpResponse("Missing movieId", { status: 400 });
+    }
+
+    if (movieId === "3342a4f2-144b-4cef-8041-676affedfbb8") {
+      return new HttpResponse(null, { status: 500 });
+    }
+
     return HttpResponse.json(recommendations.slice(0, 2));
   }),
 ];
