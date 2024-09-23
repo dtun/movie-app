@@ -1,4 +1,34 @@
 import { http, HttpResponse, delay, graphql } from "msw";
+import { graphql as executeGraphql, buildSchema } from "graphql";
+
+const schema = buildSchema(`
+  type Movie {
+    id: ID!
+    title: String!
+    slug: String!
+    category: String!
+    releasedAt: String!
+    description: String!
+    imageUrl: String!
+  }
+
+  type Review {
+    id: ID!
+    text: String!
+    rating: Int!
+    author: User!
+  }
+
+  type User {
+    id: ID!
+    firstName: String!
+    avatarUrl: String!
+  }
+
+  type Query {
+    reviews(movieId: ID!): [Review!]
+  }
+`);
 
 const reviews = [
   {
@@ -112,12 +142,21 @@ export const handlers = [
   //     }
   //   }
   // }
-  graphql.query("ListReviews", ({ variables }) => {
-    const { movieId } = variables;
-    const movie = movies.find((m) => m.id === movieId);
-    const reviews = movie?.reviews ?? [];
+  graphql.query("ListReviews", async ({ query, variables }) => {
+    const { errors, data } = await executeGraphql({
+      schema,
+      source: query,
+      variableValues: variables,
+      rootValue: {
+        reviews(args) {
+          const movie = movies.find((m) => m.id === args.movieId);
 
-    return HttpResponse.json({ data: { reviews } });
+          return movie?.reviews ?? [];
+        },
+      },
+    });
+
+    return HttpResponse.json({ errors, data });
   }),
   // mutation AddReview($author: UserInput!, $reviewInput: ReviewInput!) {
   //   addReview(author: $author, reviewInput: $reviewInput) {
