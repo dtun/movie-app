@@ -19,7 +19,7 @@ export default function Homepage() {
   return (
     <section>
       <h2 className="text-4xl font-extrabold mb-10">Featured movies</h2>
-      {featuredMovies.length > 0 ? (
+      {(featuredMovies?.length ?? 0) > 0 ? (
         <ul className="grid grid-cols-2 lg:grid-cols-[repeat(3,_minmax(0px,_250px))] gap-x-6 gap-y-16">
           {featuredMovies.map((movie) => (
             <li key={movie.id}>
