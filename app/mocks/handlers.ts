@@ -70,4 +70,21 @@ export const handlers = [
 
     return HttpResponse.json(recommendations.slice(0, 2));
   }),
+  http.post("https://auth.provider.com/validate", async ({ request }) => {
+    const data = await request.formData();
+    const email = data.get("email");
+    const password = data.get("password");
+
+    if (!email || !password) {
+      return new HttpResponse(null, { status: 400 });
+    }
+
+    return HttpResponse.json({
+      id: "1",
+      email,
+      firstName: "John",
+      lastName: "Doe",
+      avatarUrl: "https://avatars.dicebear.com/api/avataaars/johndoe.svg",
+    });
+  }),
 ];
