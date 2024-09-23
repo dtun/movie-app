@@ -141,6 +141,16 @@ export const handlers = [
     };
     const prevReviews = movie?.reviews ?? [];
 
+    if (!movie) {
+      return HttpResponse.json({
+        errors: [
+          {
+            message: `Movie with ID "${movieId}" not found.`,
+          },
+        ],
+      });
+    }
+
     if (movie?.reviews) movie.reviews = prevReviews.concat(newReview);
 
     return HttpResponse.json({ data: { addReview: newReview } });
